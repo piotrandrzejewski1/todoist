@@ -7,11 +7,13 @@
 //
 
 import UIKit
+import CoreData
 
-class ListsTableViewController: UITableViewController {
+class ItemsTableViewController: UITableViewController, UISearchBarDelegate {
 
-    var itemsArray = [ListItem]()
-
+    var itemsArray = [Item]()
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
     override func viewDidLoad() {
         super.viewDidLoad()
     
@@ -24,7 +26,7 @@ class ListsTableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "listItemCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "itemCell", for: indexPath)
         cell.textLabel?.text = itemsArray[indexPath.row].name
         cell.accessoryType = itemsArray[indexPath.row].done ? .checkmark : .none
         return cell
@@ -48,7 +50,11 @@ class ListsTableViewController: UITableViewController {
         }
         let action = UIAlertAction(title: "Add", style: .default) { (action) in
             if alertTextField?.text != "" {
-                self.itemsArray.append(ListItem(name : alertTextField!.text!))
+                let item = Item(context: self.context)
+                item.name = alertTextField!.text!
+                item.done = false
+                
+                self.itemsArray.append(item)
                 self.saveData()
                 self.tableView.reloadData()
             }
@@ -58,27 +64,39 @@ class ListsTableViewController: UITableViewController {
     }
     
     //MARK: - managing data
-    var itemsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("items.plist");
-    
     func saveData() {
-        let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(itemsArray)
-            try data.write(to: itemsDirectory)
+            try context.save()
         }
         catch {
+            print("\(error)")
         }
     }
     
-    func loadData() {
+    func loadData(with request : NSFetchRequest<Item> = Item.fetchRequest()) {
+        do {
+            itemsArray = try context.fetch(request)
+        }
+        catch {
+            print("\(error)")
+        }
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         
-        if let data = try? Data(contentsOf: itemsDirectory) {
-            let decoder = PropertyListDecoder()
-            do {
-                itemsArray = try decoder.decode([ListItem].self, from: data)
-            }
-            catch {
-                print("\(error)")
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        request.predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchBar.text!)
+        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+        loadData(with : request)
+        tableView.reloadData()
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText == "" {
+            loadData()
+            tableView.reloadData()
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
             }
         }
     }

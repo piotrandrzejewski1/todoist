@@ -9,15 +9,20 @@
 import UIKit
 import CoreData
 
-class ItemsTableViewController: UITableViewController, UISearchBarDelegate {
+class ItemsTableViewController: UITableViewController {
 
+    var selectedCategory : Category? {
+        didSet {
+            loadData()
+            tableView.reloadData()
+        }
+    }
+    
     var itemsArray = [Item]()
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    
-        loadData()
     }
 
     //MARK: - table view handling
@@ -53,6 +58,7 @@ class ItemsTableViewController: UITableViewController, UISearchBarDelegate {
                 let item = Item(context: self.context)
                 item.name = alertTextField!.text!
                 item.done = false
+                item.category = self.selectedCategory
                 
                 self.itemsArray.append(item)
                 self.saveData()
@@ -73,7 +79,17 @@ class ItemsTableViewController: UITableViewController, UISearchBarDelegate {
         }
     }
     
-    func loadData(with request : NSFetchRequest<Item> = Item.fetchRequest()) {
+    func loadData(with request : NSFetchRequest<Item> = Item.fetchRequest(), with predicate: NSPredicate? = nil) {
+        
+        let categoryPredicate = NSPredicate(format: "category.name MATCHES %@", selectedCategory!.name!)
+        
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [additionalPredicate, categoryPredicate])
+        }
+        else {
+            request.predicate = categoryPredicate
+        }
+        
         do {
             itemsArray = try context.fetch(request)
         }
@@ -81,13 +97,15 @@ class ItemsTableViewController: UITableViewController, UISearchBarDelegate {
             print("\(error)")
         }
     }
-    
+}
+
+extension ItemsTableViewController : UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         
         let request : NSFetchRequest<Item> = Item.fetchRequest()
-        request.predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchBar.text!)
+        let predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchBar.text!)
         request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        loadData(with : request)
+        loadData(with : request, with: predicate)
         tableView.reloadData()
     }
     

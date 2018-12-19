@@ -13,6 +13,7 @@
 		AE330DD021C912E700A5C821 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AE330DCF21C912E700A5C821 /* Assets.xcassets */; };
 		AE330DD321C912E700A5C821 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AE330DD121C912E700A5C821 /* LaunchScreen.storyboard */; };
 		AE330DE221C9597600A5C821 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AE330DE021C9597600A5C821 /* DataModel.xcdatamodeld */; };
+		AE330E0821CA315A00A5C821 /* CategoriesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE330E0721CA315A00A5C821 /* CategoriesTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		AE330DD221C912E700A5C821 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AE330DD421C912E700A5C821 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AE330DE121C9597600A5C821 /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
+		AE330E0721CA315A00A5C821 /* CategoriesTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +89,7 @@
 			children = (
 				AE330DC821C912E400A5C821 /* AppDelegate.swift */,
 				AE330DCA21C912E400A5C821 /* ItemsTableViewController.swift */,
+				AE330E0721CA315A00A5C821 /* CategoriesTableViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -173,6 +176,7 @@
 				AE330DE221C9597600A5C821 /* DataModel.xcdatamodeld in Sources */,
 				AE330DCB21C912E400A5C821 /* ItemsTableViewController.swift in Sources */,
 				AE330DC921C912E400A5C821 /* AppDelegate.swift in Sources */,
+				AE330E0821CA315A00A5C821 /* CategoriesTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

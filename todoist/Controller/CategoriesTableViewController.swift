@@ -7,27 +7,28 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoriesTableViewController: UITableViewController {
 
-    var categoriesArray = [Category]()
-    var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    let realm = try! Realm()
+    var categoriesArray : Results<Category>?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadData()
+    
+        categoriesArray = realm.objects(Category.self)
         tableView.reloadData()
     }
 
     //MARK: - tableview handling
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return categoriesArray.count
+        return categoriesArray?.count ?? 0
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell", for: indexPath)
-        cell.textLabel?.text = categoriesArray[indexPath.row].name
+        cell.textLabel?.text = categoriesArray![indexPath.row].name
         return cell
     }
     
@@ -38,7 +39,7 @@ class CategoriesTableViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToItems" {
             let itemsVc = segue.destination as! ItemsTableViewController
-            itemsVc.selectedCategory = categoriesArray[tableView.indexPathForSelectedRow!.row]
+            itemsVc.selectedCategory = categoriesArray?[tableView.indexPathForSelectedRow!.row]
             tableView.deselectRow(at: tableView.indexPathForSelectedRow!, animated: true)
         }
     }
@@ -55,33 +56,20 @@ class CategoriesTableViewController: UITableViewController {
                 return
             }
             
-            let category = Category(context: self.context)
-            category.name = alertTextField!.text!
-            self.saveData()
-            self.categoriesArray.append(category)
+            do {
+                try self.realm.write {
+                    let category = Category()
+                    category.name = alertTextField!.text!
+                    self.realm.add(category)
+                }
+            }
+            catch {
+                print("\(error)")
+            }
+            
             self.tableView.reloadData()
         })
         alert.addAction(action)
         present(alert, animated: true)
-    }
-    
-    //MARK: - data manipulation
-    func loadData() {
-        let request : NSFetchRequest<Category> = Category.fetchRequest()
-        do {
-            categoriesArray = try context.fetch(request)
-        }
-        catch {
-            print("\(error)")
-        }
-    }
-    
-    func saveData() {
-        do {
-            try context.save()
-        }
-        catch {
-            print("\(error)")
-        }
     }
 }
